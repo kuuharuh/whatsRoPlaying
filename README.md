@@ -3,7 +3,7 @@
 
 ## How to use
 
-Download `index.js` and execute it with `node`
+Download `index.js` and execute it with [node.js](https://nodejs.org/)
 ```
 node index.js <USERNAME>
 ```
