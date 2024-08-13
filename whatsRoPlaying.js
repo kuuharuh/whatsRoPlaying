@@ -71,7 +71,7 @@ async function fetchAllData(url, params = {}) {
 }
 
 async function makeBadgesList() {
-    const results = await fetchAllData(`https://badges.roblox.com/v1/users/${USERID}/badges`);
+    const results = await fetchAllData(`https://badges.roblox.com/v1/users/${USERID}/badges?limit=100`);
     results.forEach(item => {
         const badgeId = item.awarder.id;
         if (badgesGamesList.has(badgeId)) {
