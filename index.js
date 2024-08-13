@@ -81,12 +81,7 @@ async function checkServers() {
     let targetServerIds = [];
 
     async function fetchServers(cursor = '', attempts = 0) {
-        if (cursor === '') {
-            const url = `https://games.roblox.com/v1/games/${gameId}/servers/Public?limit=100`;
-        }
-        else {
-            const url = `https://games.roblox.com/v1/games/${gameId}/servers/Public?limit=100&cursor=${cursor}`;
-        }
+        const url = `https://games.roblox.com/v1/games/${gameId}/servers/Public?limit=100&cursor=${cursor}`;
         const response = await get(url);
 
         if (attempts >= 30 || !response.data.length) return;
