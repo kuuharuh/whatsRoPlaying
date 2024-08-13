@@ -6,7 +6,6 @@ if (!USERNAME) {
 
 let USERID;
 let userPresence;
-let favoriteList = new Map();
 let badgesGamesList = new Map();
 let gameId;
 let found = false;
@@ -17,7 +16,10 @@ const sleep = (time) => new Promise((res) => setTimeout(res, time * 1000));
 const get = async (url, includeCreds = false) => {
     try {
         const creds = includeCreds ? 'include' : 'omit';
-        const response = await fetch(url, { credentials: creds });
+        const response = await fetch(url, { 
+            credentials: creds, 
+            headers: { 'Cache-Control': 'no-cache' },
+        });
         if (!response.ok) throw new Error('Request failed');
         return await response.json();
     } catch (error) {
@@ -59,7 +61,7 @@ async function fetchAllData(url, params = {}) {
     do {
         const requestUrl = new URL(url);
         Object.entries(params).forEach(([key, value]) => requestUrl.searchParams.append(key, value));
-        if (cursor) requestUrl.searchParams.append('cursor', cursor);
+        if (cursor !== '') requestUrl.searchParams.append('cursor', cursor);
 
         const response = await get(requestUrl.toString());
         results = results.concat(response.data || response.Data?.Items || []);
@@ -70,7 +72,13 @@ async function fetchAllData(url, params = {}) {
 
 async function makeBadgesList() {
     const results = await fetchAllData(`https://badges.roblox.com/v1/users/${USERID}/badges`);
-    results.forEach(item => badgesGamesList.set(item.awarder.id, ""));
+    results.forEach(item => {
+        const badgeId = item.awarder.id;
+        if (badgesGamesList.has(badgeId)) {
+            badgesGamesList.delete(badgeId);
+        }
+        badgesGamesList.set(badgeId, "");
+    });
 }
 
 async function checkServers() {
@@ -89,7 +97,12 @@ async function checkServers() {
 
         const response = await get(url);
 
-        if (attempts >= 30 || !response.data.length) return;
+        if (attempts >= 30) return;
+        if (!response.data || response.data.length === 0) {
+            if (!response.nextPageCursor) return;
+            await sleep(1);
+            return fetchServers(cursor, attempts + 1);
+        }
 
         response.data.forEach(server => {
             if (!targetServerIds.includes(server.id)) {
@@ -106,7 +119,7 @@ async function checkServers() {
             }
         });
 
-        if (response.nextPageCursor) await fetchServers(response.nextPageCursor, attempts + 1);
+        if (response.nextPageCursor) await fetchServers(response.nextPageCursor);
     }
 
     async function findTarget() {
@@ -119,14 +132,17 @@ async function checkServers() {
                 continue;
             }
 
+            let index = 0;
             const response = await post('https://thumbnails.roblox.com/v1/batch', JSON.stringify(chosenPlayers));
             for (const thumbnailData of response.data) {
                 playersChecked += 1;
                 if (thumbnailData.imageUrl === userImage) {
                     console.log(`${USERNAME} is playing https://www.roblox.com/games/${gameId}`);
+                    console.log(`to join the same server, introduce this command in the roblox website console:\nRoblox.GameLauncher.joinGameInstance(${gameId}, "${chosenPlayers[index].requestId}")`);
                     found = true;
                     return;
                 }
+                index++;
             }
         }
     }
