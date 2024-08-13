@@ -81,7 +81,12 @@ async function checkServers() {
     let targetServerIds = [];
 
     async function fetchServers(cursor = '', attempts = 0) {
-        const url = `https://games.roblox.com/v1/games/${gameId}/servers/Public?limit=100&cursor=${cursor}`;
+        let url = `https://games.roblox.com/v1/games/${gameId}/servers/Public?limit=100&cursor=${cursor}`;
+
+		if (cursor === '') {
+			url = `https://games.roblox.com/v1/games/${gameId}/servers/Public?limit=100`;
+		}
+
         const response = await get(url);
 
         if (attempts >= 30 || !response.data.length) return;
@@ -159,6 +164,7 @@ async function main() {
     console.log(`${badgesCount} games found on badge list, testing...`);
     for (const key of reversedMap.keys()) {
         gameId = key;
+        console.log(`checking ${gameId}...`); 
         await checkServers();
         if (found) break;
         console.log(`${index++}/${badgesCount} checked`);
