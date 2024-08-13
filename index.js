@@ -150,7 +150,6 @@ async function main() {
     }
     console.log("the user is playing");
 
-    checkingBadges = true;
     console.log("indexing badge list...");
     await makeBadgesList();
     const reversedMap = new Map([...badgesGamesList.entries()].reverse());
