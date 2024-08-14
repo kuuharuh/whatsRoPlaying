@@ -3,9 +3,9 @@
 
 ## How to use
 
-Download `index.js` and execute it with [node.js](https://nodejs.org/)
+Download `whatsRoPlaying.js` and execute it with [node.js](https://nodejs.org/)
 ```
-node index.js <USERNAME>
+node whatsRoPlaying.js <USERNAME>
 ```
 
 ## How does it work
